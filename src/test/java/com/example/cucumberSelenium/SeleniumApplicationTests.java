@@ -51,7 +51,7 @@ public class SeleniumApplicationTests {
 	@Test
 	void verifyMenu(){
 		List<String> name = Arrays.asList("start", "program", "kanaler");
-		List<WebElement> menuList = driver.findElements(By.xpath("//*[@data-rt='play-navigation']//li[@data-rt='menu-item']"));
+		List<WebElement> menuList = driver.findElements(By.cssSelector("[data-rt='play-navigation'] li[data-rt='menu-item']"));
 		int index=0;
 		for (WebElement menu: menuList) {
 			assertEquals(menu.getText().toLowerCase(), name.get(index), "Menu value does not match");
@@ -69,6 +69,7 @@ public class SeleniumApplicationTests {
 	void verifyTillgänglighetLink(){
 		WebElement link = getTillgänglighetLink();
 		assertTrue(link.isDisplayed());
+		assertEquals(link.getText().split(",")[0].trim(), "Tillgänglighet i SVT Play");
 	}
 
 	@Test
@@ -76,7 +77,7 @@ public class SeleniumApplicationTests {
 		WebElement link = getTillgänglighetLink();
 		link.click();
 		String pageTitle = "Så arbetar SVT med tillgänglighet";
-		WebElement heading=driver.findElement(By.xpath("//h1"));
+		WebElement heading=driver.findElement(By.cssSelector("h1"));
 		assertEquals(heading.getText(),pageTitle,  "title not matching...");
 		driver.navigate().back();
 		// beforeTest();
@@ -91,7 +92,8 @@ public class SeleniumApplicationTests {
 		wait.until(ExpectedConditions.titleIs(pageTitle));
 		String websiteHeading = driver.getTitle();
 		assertEquals(websiteHeading,pageTitle,  "title not matching...");
-		List<WebElement> kategorier = driver.findElements(By.xpath("//*[@data-rt='grid']//article"));
+		List<WebElement> kategorier = driver.findElements(By.cssSelector("[data-rt='grid'] article"));
+		assertEquals(kategorier.size(), 17);
 		for(WebElement category : kategorier) {
 			assertTrue(category.isDisplayed());
 		}
@@ -169,17 +171,18 @@ public class SeleniumApplicationTests {
 	@Test
 	void verifySök() throws InterruptedException {
 		WebElement link = driver.findElement(By.name("q"));
+		String searchKeyword = "Drama";
 		link.click();
-		link.sendKeys("Drama");
+		link.sendKeys(searchKeyword);
 		link.submit();
 		Thread.sleep(1000);
-		WebElement link1= driver.findElement(By.xpath("//*[@id=\"play_main-content\"]/section/div/ul/li[1]/article/a/div[2]/h2"));
-		link1.click();
+		WebElement searchResultTitle = driver.findElement(By.cssSelector("h2[data-rt='header-search-result']"));
+		List<WebElement> searchResults = driver.findElements(By.className("sc-8ddc32bb-1"));
+		assertEquals(searchResultTitle.getText(), "Din sökning på " + searchKeyword + " gav " + searchResults.size() + " träffar.");
+		WebElement categoryLink= driver.findElement(By.xpath("//*[@id=\"play_main-content\"]/section/div/ul/li[1]/article/a/div[2]/h2"));
+		categoryLink.click();
 		Thread.sleep(1000);
-		driver.navigate().back();
-		Thread.sleep(750);
-		driver.navigate().to("https://svtplay.se");
-
+		assertTrue(driver.getCurrentUrl().toLowerCase().contains(searchKeyword.toLowerCase()));
 	}
 
 	static void acceptCookies(){
