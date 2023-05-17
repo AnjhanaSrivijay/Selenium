@@ -1,5 +1,6 @@
 package com.example.cucumberjava;
 
+import io.cucumber.java.After;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -25,34 +26,38 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class svtSteps {
 
     private static WebDriver driver;
-    private static WebDriverWait  wait;
+    private static WebDriverWait wait;
 
     private static Actions actions;
+
     @Given("user launches the homepage")
     public void user_launches_the_homepage() {
 
         //System.setProperty("webdriver.chrome.driver", "C:\\Users\\ssrikris\\Anjhana\\chromedriver_win32\\chromedriver.exe");
         ChromeOptions options = new ChromeOptions().addArguments("--remote-allow-origins=*");
-        driver= new ChromeDriver(options);
+        driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
         wait = new WebDriverWait(driver, Duration.ofSeconds(2));
         actions = new Actions(driver);
         String pageUrl = "https://svtplay.se";
         driver.get(pageUrl);
     }
+
     @When("user accepts the cookies")
-    public void user_accepts_the_cookies() {
+    public void user_accepts_the_cookies() throws InterruptedException {
         WebElement cookieModel = driver.findElement(By.xpath("//*[@data-rt='cookie-consent-modal']"));
         wait.until(ExpectedConditions.visibilityOf(cookieModel));
         driver.findElement(By.xpath("//button[text()='Acceptera alla']")).click();
-        wait.until(ExpectedConditions.invisibilityOf(cookieModel));
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//*[@data-rt='cookie-consent-modal']")));
     }
+
     @Then("user verify the page title")
     public void user_verify_the_page_title() {
         String websiteHeading = driver.getTitle();
         String pageTitle = "SVT Play";
-        assertEquals(pageTitle,websiteHeading,  "title not matching...");
+        assertEquals(pageTitle, websiteHeading, "title not matching...");
     }
+
     @Then("user verify the SVT logo")
     public void user_verify_the_svt_logo() {
         WebElement logo = driver.findElement(By.xpath("//*[name()='svg']"));
@@ -64,8 +69,8 @@ public class svtSteps {
     public void verify_the_menu_on_the_homepage() {
         List<String> name = Arrays.asList("start", "program", "kanaler");
         List<WebElement> menuList = driver.findElements(By.xpath("//*[@data-rt='play-navigation']//li[@data-rt='menu-item']"));
-        int index=0;
-        for (WebElement menu: menuList) {
+        int index = 0;
+        for (WebElement menu : menuList) {
             assertEquals(menu.getText().toLowerCase(), name.get(index), "Menu value does not match");
             index++;
         }
@@ -78,6 +83,7 @@ public class svtSteps {
         actions.moveToElement(link);
         actions.perform();
     }
+
     @Then("user verify the Tillgänglighet Link is available")
     public void user_verify_the_tillgänglighet_link_is_available() {
         WebElement link = driver.findElement(By.xpath("//*[@id=\"__next\"]/div/div[3]/div/footer/div/div[5]/div[2]/p[1]/a"));
@@ -85,6 +91,7 @@ public class svtSteps {
         actions.perform();
         assertTrue(link.isDisplayed());
     }
+
     @When("user clicks on the link")
     public void user_clicks_on_the_link() {
         WebElement link = driver.findElement(By.xpath("//*[@id=\"__next\"]/div/div[3]/div/footer/div/div[5]/div[2]/p[1]/a"));
@@ -93,6 +100,7 @@ public class svtSteps {
         assertTrue(link.isDisplayed());
         link.click();
     }
+
     @When("user clicks on the Inställingar link")
     public void user_clicks_on_the_inställingar_link() {
         WebElement link = driver.findElement(By.xpath("//*[@id=\"__next\"]/div/div[3]/div/footer/div/div[3]/a[1]"));
@@ -101,14 +109,14 @@ public class svtSteps {
         assertTrue(link.isDisplayed());
         link.click();
     }
+
     @Then("user should land on the Tillgänglighet page")
     public void user_should_land_on_the_tillgänglighet_page() {
         String pageTitle = "Så arbetar SVT med tillgänglighet";
-        WebElement heading=driver.findElement(By.xpath("//h1"));
-        assertEquals(heading.getText(),pageTitle,  "title not matching...");
+        WebElement heading = driver.findElement(By.xpath("//h1"));
+        assertEquals(heading.getText(), pageTitle, "title not matching...");
         driver.navigate().back();
     }
-
 
 
     @When("user clicks on the program")
@@ -122,13 +130,15 @@ public class svtSteps {
         String pageTitle = "Program A-Ö | SVT Play";
         wait.until(ExpectedConditions.titleIs(pageTitle));
         String websiteHeading = driver.getTitle();
-        assertEquals(websiteHeading,pageTitle,  "title not matching...");
+        assertEquals(websiteHeading, pageTitle, "title not matching...");
 
     }
+
     @Then("user verifies all the categories are displayed")
     public void user_verifies_all_the_categories_are_displayed() {
         List<WebElement> kategorier = driver.findElements(By.xpath("//*[@data-rt='grid']//article"));
-        for(WebElement category : kategorier) {
+        assertEquals(kategorier.size(), 17);
+        for (WebElement category : kategorier) {
             assertTrue(category.isDisplayed());
         }
         driver.navigate().back();
@@ -139,13 +149,15 @@ public class svtSteps {
         WebElement link = driver.findElement(By.linkText("KANALER"));
         link.click();
     }
+
     @Then("user verifies the title of the kanaler page")
     public void user_verifies_the_title_of_the_kanaler_page() {
         String pageTitle = "Kanaler | SVT Play";
         wait.until(ExpectedConditions.titleIs(pageTitle));
         String websiteHeading = driver.getTitle();
-        assertEquals(websiteHeading,pageTitle,  "title not matching...");
+        assertEquals(websiteHeading, pageTitle, "title not matching...");
     }
+
     @When("user clicks on the programs tab")
     public void user_clicks_on_the_programs_tab() {
         WebElement link1 = driver.findElement(By.id("tab-1"));
@@ -173,8 +185,8 @@ public class svtSteps {
     public void user_should_land_on_the_inställingar_page() {
         String pageTitle = "Inställningar | SVT Play";
         wait.until(ExpectedConditions.titleIs(pageTitle));
-        WebElement heading=driver.findElement(By.xpath("//h1"));
-        assertEquals(heading.getText(),"Inställningar",  "title not matching...");
+        WebElement heading = driver.findElement(By.xpath("//h1"));
+        assertEquals(heading.getText(), "Inställningar", "title not matching...");
     }
 
     @When("user selects the nyheter category")
@@ -188,7 +200,7 @@ public class svtSteps {
         String pageTitle = "Nyheter | SVT Play";
         wait.until(ExpectedConditions.titleIs(pageTitle));
         String websiteHeading = driver.getTitle();
-        assertEquals(websiteHeading,pageTitle,  "title not matching...");
+        assertEquals(websiteHeading, pageTitle, "title not matching...");
         driver.navigate().back();
     }
 
@@ -199,7 +211,7 @@ public class svtSteps {
         String pageTitle = "Barn | SVT Play";
         wait.until(ExpectedConditions.titleIs(pageTitle));
         String websiteHeading = driver.getTitle();
-        assertEquals(websiteHeading,pageTitle,  "title not matching...");
+        assertEquals(websiteHeading, pageTitle, "title not matching...");
     }
 
     @When("user clicks on the program tab of the barn category")
@@ -241,7 +253,7 @@ public class svtSteps {
 
     @Then("user should land on the Drama category page")
     public void user_should_land_on_the_drama_category_page() {
-        WebElement link1= driver.findElement(By.xpath("//*[@id=\"play_main-content\"]/section/div/ul/li[1]/article/a/div[2]/h2"));
+        WebElement link1 = driver.findElement(By.xpath("//*[@id=\"play_main-content\"]/section/div/ul/li[1]/article/a/div[2]/h2"));
         link1.click();
     }
 
@@ -255,15 +267,10 @@ public class svtSteps {
         driver.navigate().to("https://svtplay.se");
     }
 
-
-
-
-
-
-
-
-
-
+    @After
+    public void after() {
+        driver.quit();
+    }
 
 
 }
